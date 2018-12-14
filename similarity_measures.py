@@ -1,4 +1,3 @@
-# calculate jaccard correlation
 import csv
 from math import *
 import json
@@ -99,11 +98,9 @@ if __name__ == "__main__":
     topics = ["science", "religion", "history", "generic", "ideas", "current"]
     #topics = ["current"]
     for SE in searchengines:
-        #print(SE)
         vals = []
         filename = SE[0] + "_" + SE[1] + "_symdiff.csv"
         for topic in topics:
-            #print(topic)
             datafile = "./data/" +SE[0]+ "_"+topic+".json"
             datafile2 = "./data/" + SE[1]+"_"+topic+".json"
             with open(datafile) as f1:
@@ -136,7 +133,7 @@ if __name__ == "__main__":
      
             #calculate jaccard  
             #vals = []
-            '''for query in masterlist1:
+            for query in masterlist1:
                 js = jaccard_similarity(masterlist1[query], masterlist2[query])
                 d = [query, js]
                 vals.append(d)
@@ -144,11 +141,11 @@ if __name__ == "__main__":
             with open(filename, "wb") as csv_file:
                 writer = csv.writer(csv_file, delimiter=",")
                 for line in vals:
-                    writer.writerow(line)'''
+                    writer.writerow(line)
 
             # calculate rank bias overlap 
             #vals = []
-            '''for query in masterlist1:
+            for query in masterlist1:
                 rbo = calc_rbo(masterlist1[query], masterlist2[query], 0.98)
                 d = [query, rbo]
                 vals.append(d)
@@ -156,7 +153,7 @@ if __name__ == "__main__":
             with open(filename, "wb") as csv_file:
                 writer = csv.writer(csv_file, delimiter=",")
                 for line in vals:
-                    writer.writerow(line)'''
+                    writer.writerow(line)
 
             #calculate top k symmetric difference
             #vals = []
@@ -176,7 +173,7 @@ if __name__ == "__main__":
 
             #O(n!) consensus ranking jaccard
             #vals = []
-            '''for query in masterlist1:
+            for query in masterlist1:
                 setofall = set(masterlist1[query] + masterlist2[query])
                 listofcombos = combination(list(setofall))
                 maxval = 0
@@ -198,10 +195,10 @@ if __name__ == "__main__":
            
             with open(filename, "w") as f:
                 for line in vals:
-                    f.write("\"%s\", %s, %s\n" % (line[0], str(line[1]), str(line[2])))'''
+                    f.write("\"%s\", %s, %s\n" % (line[0], str(line[1]), str(line[2])))
 
             #O(n!) consensus ranking RBO
-            '''for query in masterlist1:
+            for query in masterlist1:
                 setofall = set(masterlist1[query] + masterlist2[query])
                 listofcombos = combination(list(setofall))
                 maxval = 0
@@ -223,4 +220,4 @@ if __name__ == "__main__":
             with open(filename, "wb") as csv_file:
                 writer = csv.writer(csv_file, delimiter=",")
                 for line in vals:
-                    writer.writerow(line)'''
+                    writer.writerow(line)
