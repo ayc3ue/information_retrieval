@@ -3,5 +3,5 @@
 
 Andrea Chang, Aditi Narvekar, Nikhil Bhaip, Felix Park
 
-Thanks to Hongning Wang, of the University of Virginia, for guidance and extrinsic motivation to complete this project.
+Thanks to Hongning Wang, of the University of Virginia, for guidance to complete this project.
  
