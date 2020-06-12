@@ -6,53 +6,48 @@ import itertools
 from itertools import combinations
 import unicodedata
 
-# x and y are lists
-def jaccard_similarity(x, y):
-    #intersection_cardinality = len(set.intersection(*[set(x), set(y)]))
-    #union_cardinality = len(set.union(*[set(x), set(y)]))
-    #return intersection_cardinality / float(union_cardinality)
-    intersection = len(list(set(x) & set(y)))
+def jaccard_similarity(results_list_1, results_list_2):
+    intersection = len(list(set(results_list_1) & set(results_list_2)))
     union = 10 - intersection
     return float(intersection)/union
 
-def new_jaccard(list1, list2):
+def new_jaccard(results_list_1, results_list_2):
     inter = 0
     union = 0
-    for x in list1:
-        if x in list1:
+    for x in results_list_1:
+        if x in results_list_1:
             inter+=1
     s = {}
-    for x in list1:
+    for x in results_list_1:
         if x not in s:
             s[x] = 1
             union+=1
-    for x in list2:
+    for x in results_list_2:
         if x not in s:
             s[x] = 1
             union+=1
     return float(inter)/float(union)
 
 # the set of elements which are in either of the sets and not in their intersection
-# x and y are lists
-def symmetric_difference(x, y):
-    intersection_set = set(set(x) & set(y))
-    #intersection_set = x.intersection(y)
-    symmetric_diff_sz = len(set(x).union(set(y))) - len(intersection_set)    
+def symmetric_difference(results_list_1, results_list_2):
+    intersection_set = set(set(results_list_1) & set(results_list_2))
+    symmetric_diff_sz = len(set(results_list_1).union(set(results_list_2))) - len(intersection_set)    
     return symmetric_diff_sz
 
-# x and y are lists, i is the length of the list
+# x and y are lists, k is the length of the list
 def permute_top_k(x,y,k):
     list1, lisrt2 = x[:k], y[:k]
     return symmetric_difference(list1, lisrt2)
 
-def permute_list(l1):
-    return list(itertools.permutations(l1))
+def permute_list(input_list):
+    return list(itertools.permutations(input_list))
 
-def combination(l1):
-    return list(combinations(l1, 5))
+def combination(input_list):
+    return list(combinations(input_list, 5))
 
-def calc_rbo(l1, l2, p):
-    sl, ll = sorted([(len(l1), l1), (len(l2), l2)])
+# calculates a similarity metric that takes ranking of results into account, called the rank biased overlap.
+def calc_rbo(list_1, list_2, p):
+    sl, list_1 = sorted([(len(list_1), list_1), (len(list_2), list_2)])
     s, S = sl
     l, L = ll
 
@@ -86,17 +81,14 @@ def calc_rbo(l1, l2, p):
     # (3) [(X_l - X_s) / l + X_s / s] * p^l
     sum3 = ((X_l - X_s) / l + X_s / s) * pow(p, l)
 
-    # Equation 32.
     rbo_ext = (1 - p) / p * (sum1 + sum2) + sum3
     return rbo_ext
 
 
 if __name__ == "__main__":
-    # take in file
     searchengines = [("duckduckgo", "google"), ("duckduckgo", "baidu"), ("duckduckgo", "bing"), ("google", "bing"), ("google", "baidu"), ("bing", "baidu")]
-    #searchengines = [("bing", "baidu")]
     topics = ["science", "religion", "history", "generic", "ideas", "current"]
-    #topics = ["current"]
+
     for SE in searchengines:
         vals = []
         filename = SE[0] + "_" + SE[1] + "_symdiff.csv"
@@ -128,27 +120,25 @@ if __name__ == "__main__":
                         masterlist2[querystring] = [url]
                     else:
                         masterlist2[querystring].append(url)
-
-            #filename = SE[0] + "_" + SE[1] + "_" + topic + "_jaccard.csv"
      
             #calculate jaccard  
-            #vals = []
             for query in masterlist1:
                 js = jaccard_similarity(masterlist1[query], masterlist2[query])
                 d = [query, js]
                 vals.append(d)
+                
             #filename = SE[0] + "_" + SE[1] + "_" + topic + "_jaccard.csv"
             with open(filename, "wb") as csv_file:
                 writer = csv.writer(csv_file, delimiter=",")
                 for line in vals:
                     writer.writerow(line)
 
-            # calculate rank bias overlap 
-            #vals = []
+            # calculate rank bias overlap (rbo)
             for query in masterlist1:
                 rbo = calc_rbo(masterlist1[query], masterlist2[query], 0.98)
                 d = [query, rbo]
                 vals.append(d)
+                
             #filename = SE[0] + "_" + SE[1] + "_" + topic + "_RBO.csv"
             with open(filename, "wb") as csv_file:
                 writer = csv.writer(csv_file, delimiter=",")
@@ -156,7 +146,6 @@ if __name__ == "__main__":
                     writer.writerow(line)
 
             #calculate top k symmetric difference
-            #vals = []
             for query in masterlist1:
                 total = 0
                 for k in range(1, 6):
@@ -171,8 +160,7 @@ if __name__ == "__main__":
                 for line in vals:
                     writer.writerow(line)
 
-            #O(n!) consensus ranking jaccard
-            #vals = []
+            #O(n!) method for calculating consensus ranking on jaccard metric
             for query in masterlist1:
                 setofall = set(masterlist1[query] + masterlist2[query])
                 listofcombos = combination(list(setofall))
@@ -191,13 +179,13 @@ if __name__ == "__main__":
                 if(maxA!=0 and maxB!=0):
                     d = [query, maxA, maxB]
                     vals.append(d)
+                    
             #filename = SE[0] + "_" + SE[1] + "_" + topic + "_consensusrank_jaccard_improved.csv"
-           
             with open(filename, "w") as f:
                 for line in vals:
                     f.write("\"%s\", %s, %s\n" % (line[0], str(line[1]), str(line[2])))
 
-            #O(n!) consensus ranking RBO
+            #O(n!) method for calculating consensus ranking based on RBO
             for query in masterlist1:
                 setofall = set(masterlist1[query] + masterlist2[query])
                 listofcombos = combination(list(setofall))
